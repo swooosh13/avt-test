@@ -1,0 +1,464 @@
+openapi: 3.0.0
+info:
+  title: Avito balance test
+  description: API for avito-balance-test
+  version: 1.0.0
+
+tags:
+  - name: balance
+    description: Операции с балансом
+  - name: reservation
+    description: Операции с резервированным балансом
+  - name: transactions
+    description: Операции с транзакциями
+paths:
+  /api/v1/balance:
+    post:
+      tags:
+        - balance
+      summary: Отправить средства со счета на счет
+      operationId: balance_create
+      requestBody:
+        description: |
+          Обязательные поля
+
+          - `from_user_id`
+
+          - `to_user_id`
+
+          - `amount`
+
+
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferBalanceDTO"
+        required: true
+      responses:
+        200:
+          $ref: "#/components/responses/StatusOk"
+        400:
+          $ref: "#/components/responses/RequiredError"
+        500:
+          $ref: "#/components/responses/FatalError"
+    put:
+      tags:
+        - balance
+      summary: Пополнить / Снять / создать счет
+      description: Метод начисления средств на баланс
+      operationId: balance_update
+      requestBody:
+        description: |
+          Обязательные поля
+
+          - `user_id`
+          - `amount`
+
+
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBalanceDTO"
+        required: true
+      responses:
+        200:
+          $ref: "#/components/responses/StatusOk"
+        400:
+          $ref: "#/components/responses/RequiredError"
+        500:
+          $ref: "#/components/responses/FatalError"
+
+  /api/v1/balance/{balance_id}:
+    get:
+      tags:
+        - balance
+      summary: Получить баланс по id
+      operationId: balance_get_by_id
+      description: Метод получения баланса пользователя
+      parameters:
+        - $ref: '#/components/parameters/BalanceID'
+      responses:
+        200:
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/GetBalanceByIDResponse"
+        400:
+          description: Невалидный параметр
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Balance not found. id param is not valid
+        404:
+          $ref: "#/components/responses/NotFoundError"
+        500:
+          $ref: '#/components/responses/FatalError'
+
+  /api/v1/reservation/{reservation_id}:
+    get:
+      tags:
+        - reservation
+      summary: Получить зарезервированный счет пользователя
+      operationId: reservation_get_by_id
+      parameters:
+        - $ref: '#/components/parameters/ReservationID'
+      responses:
+        200:
+          $ref: "#/components/responses/StatusOk"
+        400:
+          $ref: "#/components/responses/RequiredError"
+        500:
+          $ref: "#/components/responses/FatalError"
+
+  /api/v1/reservation:
+    post:
+      tags:
+        - reservation
+      summary: Зарезервировать средства
+      description: Метод резервирования средств с основного баланса на отдельном счете.
+      operationId: reservation_post
+      requestBody:
+        description: |
+
+          ## Обязательные поля
+
+          - `user_id`
+          - `service_id`
+          - `order_id`
+          - `amount`
+
+          ## Пояснения
+
+          - amount >= 0 `->` перевод из баланса на резерв
+          - amoun < 0 `->` переврд из резерва на баланс
+
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReservateBalanceDTO"
+        required: true
+      responses:
+        200:
+          $ref: "#/components/responses/StatusOk"
+        400:
+          $ref: "#/components/responses/RequiredError"
+        500:
+          $ref: "#/components/responses/FatalError"
+
+  /api/v1/transactions:
+    get:
+      tags:
+        - transactions
+      summary: Получить месячный отчет по транзакциям
+      operationId: get_all_transactions_report
+      parameters:
+        - $ref: '#/components/parameters/Date'
+      responses:
+        200:
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TransactionsReportResponse"
+
+        400:
+          $ref: "#/components/responses/RequiredError"
+        500:
+          $ref: "#/components/responses/FatalError"
+
+
+    post:
+      tags:
+        - transactions
+      summary: Перевод денег с резерва на оплату
+      description: Метод признания выручки
+      operationId: add_payment_transaction
+      requestBody:
+        description: |
+
+          ## Обязательные поля
+
+          - `user_id`
+          - `service_id`
+          - `order_id`
+          - `amount`
+
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RevenueDTO"
+        required: true
+      responses:
+        200:
+          $ref: "#/components/responses/StatusOk"
+        400:
+          $ref: "#/components/responses/RequiredError"
+        500:
+          $ref: "#/components/responses/FatalError"
+
+
+  /api/v1/transactions/{user_id}:
+    get:
+      tags:
+        - transactions
+      summary: Получить транзакции пользователя
+      operationId: get_all_user_transactions
+      parameters:
+        - $ref: '#/components/parameters/UserID'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        200:
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: "#/components/schemas/TransactionsListResponse"
+        400:
+          $ref: "#/components/responses/RequiredError"
+        500:
+          $ref: "#/components/responses/FatalError"
+
+components:
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      description: Количество возвращаемых элементов
+      required: false
+      schema:
+        type: integer
+        format: uint64
+    Offset:
+      name: offset
+      in: query
+      description: Смещение первого элемента в выборке
+      required: false
+      schema:
+        type: integer
+        format: uint64
+    Date:
+      name: date
+      in: query
+      description: Год-Месяц
+      required: false
+      schema:
+        type: string
+        format: date
+        example: "2022-10"
+
+    BalanceID:
+      name: balance_id
+      in: path
+      description: идентификатор банаса
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+    UserID:
+      name: user_id
+      in: path
+      description: идентификатор банаса
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+    ReservationID:
+      name: reservation_id
+      in: path
+      description: идентификатор reservation
+      required: true
+      schema:
+        type: integer
+        format: int64
+        example: 1
+
+  responses:
+    StatusOk:
+      description: OK
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: "ok"
+    PatchOK:
+      description: Успешный ответ
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                example: 200
+    DeleteOK:
+      description: Успешный ответ
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: integer
+                example: 200
+    RequiredError:
+      description: Не передали обязательные поля
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Required field is empty
+    FatalError:
+      description: Внутрення ошибка сервера
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: error message
+    NotFoundError:
+      description: Элемент не найден
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Item not found"
+
+
+  schemas:
+    GetAllTransactionsResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+        service_id:
+          type: integer
+          example: 2
+        order_id:
+          type: integer
+          example: 4
+        from_info:
+          type: string
+          example: "reservation-2"
+        to_info:
+          type: string
+          example: "payment"
+    TransactionsList:
+      type: array
+      items:
+        $ref: "#/components/schemas/GetAllTransactionsResponse"
+
+    TransactionsReportResponse:
+      type: object
+      properties:
+        link:
+          type: string
+          example: "http://csv.avito.report.hb.bizmrg.com/report_202210_20221025.csv"
+
+    TransactionsListResponse:
+      type: object
+      properties:
+        transactions:
+          $ref: "#/components/schemas/TransactionsList"
+        range:
+          type: object
+          properties:
+            count:
+              type: integer
+              example: 6
+            limit:
+              type: integer
+              example: 1
+            offset:
+              type: integer
+              example: 0
+
+    GetBalanceByIDResponse:
+      type: object
+      description: asd
+      properties:
+        balance:
+          type: integer
+          example: 20
+
+    RevenueDTO:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 3
+        order_id:
+          type: integer
+          example: 2
+        service_id:
+          type: integer
+          example: 3
+        amount:
+          type: integer
+          example: 1
+
+    ReservateBalanceDTO:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 3
+        order_id:
+          type: integer
+          example: 2
+        service_id:
+          type: integer
+          example: 3
+        amount:
+          type: integer
+          example: 1
+
+    UpdateBalanceDTO:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 3
+        amount:
+          type: integer
+          example: 1
+    TransferBalanceDTO:
+      type: object
+      properties:
+        from_user_id:
+          type: integer
+          example: 3
+        to_user_id:
+          type: integer
+          example: 2
+        amount:
+          type: integer
+          example: 1

@@ -1,0 +1,49 @@
+{
+	"info": {
+		"_postman_id": "57fdd192-6cd4-4568-ae13-52558822e90c",
+		"name": "reservartion",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "14724320"
+	},
+	"item": [
+		{
+			"name": "get reservation",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"user_id\": 1,\r\n    \"amount\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{url}}/api/v1/reservation/1"
+			},
+			"response": []
+		},
+		{
+			"name": "reserve balance",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"user_id\": 2,\r\n    \"service_id\": 1,\r\n    \"order_id\": 1,\r\n    \"amount\": -2\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{url}}/api/v1/reservation"
+			},
+			"response": []
+		}
+	]
+}

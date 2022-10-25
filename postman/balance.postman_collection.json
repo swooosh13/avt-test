@@ -1,0 +1,55 @@
+{
+	"info": {
+		"_postman_id": "8226ef21-5bf2-43a6-831b-29cf6766a290",
+		"name": "balance",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "14724320"
+	},
+	"item": [
+		{
+			"name": "get balance",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{url}}/api/v1/balance/2"
+			},
+			"response": []
+		},
+		{
+			"name": "transfer balance",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"from_user_id\": 1,\r\n    \"to_user_id\": 2,\r\n    \"amounta\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{url}}/api/v1/balance"
+			},
+			"response": []
+		},
+		{
+			"name": "update balance",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"user_id\": 1,\r\n    \"amount\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{url}}/api/v1/balance"
+			},
+			"response": []
+		}
+	]
+}
