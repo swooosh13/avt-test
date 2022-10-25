@@ -16,7 +16,7 @@
 - Для получения ссылки на месячный отчет было использовано S3 хранилище (в .env открыто только на время теста)
 - [Сценарий разрезервирования денег (в Revenue)](./internal/controller/http/transactions.go)
 - [Метод получения отчета пользователя с сортировками и пагинацией (в UserReport)](./internal/controller/http/transactions.go)
-
+- [Swagger](./swagger/api.yaml)
 
 ### Пример отчета
 
